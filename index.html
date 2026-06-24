@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bus Departures</title>
+    <title>Brno, Nemocnice Milosrdných bratří</title>
     <style>
       body {
         background-color: black;
@@ -90,7 +90,7 @@
         const fetchDataTime = 60000;
 
         async function fetchDepartures() {
-          const proxyUrl = "https://corsproxy.io/?";
+          const proxyUrl = "https://api.allorigins.win/get?url=";
           const targetUrl = encodeURIComponent(
             "https://www.idsjmk.cz/api/departures/busstop-by-name?busStopName=Nemocnice+Milosrdnych+Bratri"
           );
@@ -129,7 +129,7 @@
             table.innerHTML += `
               <thead>
                 <tr>
-                  <th title="Linka">🚉</th>
+                  <th title="Linka">🚉 Odjezdy ve směru:</th>
                   <th title="Cílová stanice"><span>${
                     sign.busStopSign.description
                   }</span></th>
