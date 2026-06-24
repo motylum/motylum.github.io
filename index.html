@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bus Departures</title>
+    <style>
+      body {
+        background-color: black;
+        font-family: system-ui;
+        min-height: 100vh;
+      }
+      table {
+        background-color: hsl(0 0% 10%);
+        color: white;
+        border: none;
+        border-collapse: collapse;
+        border-radius: 0.5em;
+        overflow: hidden;
+        inline-size: 100%;
+        text-align: left !important;
+
+        &:first-child {
+          margin-bottom: 2.5vh;
+        }
+
+        caption {
+          padding-block-end: 0.5rem;
+          font-weight: 700;
+          text-align: left;
+        }
+
+        tr:nth-child(even) {
+          background-color: hsl(0 0% 20%);
+        }
+
+        thead tr:nth-child(even) {
+          background-color: hsl(0 0% 20%);
+        }
+        th {
+          font-size: 2rem;
+          text-align: left;
+
+          span {
+            vertical-align: middle;
+            font-size: 0.5em;
+            display: block;
+          }
+        }
+
+        td,
+        th {
+          padding-block: 0.5rem;
+          padding-inline: 1rem;
+        }
+      }
+
+      p {
+        padding: 1rem;
+        color: white;
+        background-color: hsla(39, 100%, 50%, 0.8);
+        backdrop-filter: blur(0.5rem);
+        border-radius: 0.5em;
+        font-size: 14px;
+        margin: 0;
+      }
+
+      #progress {
+        block-size: 0.5rem;
+        background-color: hsl(0 0% 20%);
+        border-radius: 100vmax;
+        position: sticky;
+        inset: 0 0 auto 0;
+        scale: var(--progress-trans-x, 0) 1;
+        transform-origin: left;
+        animation: progressAnim linear;
+        animation-timeline: scroll();
+        margin-block-end: 0.5rem;
+        transition: scale .25s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="progress"></div>
+    <div id="tables-container">
+      <!-- Tables will be populated here -->
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const fetchDataTime = 60000;
+
+        async function fetchDepartures() {
+          const proxyUrl = "https://api.allorigins.win/get?url=";
+          const targetUrl = encodeURIComponent(
+            "https://www.idsjmk.cz/api/departures/busstop-by-name?busStopName=Nemocnice+Milosrdnych+Bratri"
+          );
+          const cacheBust = `&cacheBust=${Date.now()}`;
+          try {
+            const response = await fetch(proxyUrl + targetUrl + cacheBust);
+            const data = await response.json();
+            const parsedData = JSON.parse(data.contents);
+            console.log(parsedData);
+            updateTables(
+              parsedData.stops[0].signs,
+              parsedData.stops[0].infoText
+            );
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        }
+
+        function updateProgress() {
+          const progressBar = document.getElementById("progress");
+        }
+
+        function updateTables(signs, infoText) {
+          const container = document.getElementById("tables-container");
+          container.innerHTML = ""; // Clear previous content
+
+          if (!signs || signs.length === 0) {
+            const message = document.createElement("p");
+            message.textContent = "Žádné aktuální odjezdy.";
+            container.appendChild(message);
+            return;
+          }
+
+          signs.forEach((sign) => {
+            const table = document.createElement("table");
+            table.innerHTML += `
+              <thead>
+                <tr>
+                  <th title="Linka">🚉</th>
+                  <th title="Cílová stanice"><span>${
+                    sign.busStopSign.description
+                  }</span></th>
+                  <th title="Čas odjezdu">➡</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sign.departures
+                  .map(
+                    (departure) => `
+                    <tr>
+                      <td>${departure.link}</td>
+                      <td>${departure.destinationStop}</td>
+                      <td>${departure.time}</td>
+                    </tr>
+                  `
+                  )
+                  .join("")}
+              </tbody>
+            `;
+            container.appendChild(table);
+          });
+
+          if (infoText && infoText.length > 0) {
+            infoText.forEach((text) => {
+              const paragraph = document.createElement("p");
+              paragraph.textContent = text;
+              container.appendChild(paragraph);
+            });
+          }
+        }
+
+        function startProgressBar(duration) {
+            const progressElement = document.getElementById('progress');
+            let progressValue = 0;
+            const interval = 1000; // 1 second
+
+            // Function to update the custom property
+            function updateProgress() {
+                progressValue += interval / duration; // Increment progress value
+                if (progressValue > 1) progressValue = 1; // Cap at 1
+                progressElement.style.setProperty('--progress-trans-x', progressValue);
+            }
+
+            // Start updating progress every second
+            const intervalId = setInterval(updateProgress, interval);
+
+            // Stop updating progress after the duration
+            setTimeout(() => clearInterval(intervalId), duration);
+        }
+
+        fetchDepartures();
+        startProgressBar(fetchDataTime);
+
+        setInterval(() => {
+          fetchDepartures();
+          startProgressBar(fetchDataTime);
+        }, fetchDataTime);
+
+        const body = document.querySelector('body');
+
+        body.addEventListener('click', function() {
+              location.reload();
+            });
+      });
+    </script>
+  </body>
+</html>
