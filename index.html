@@ -91,9 +91,7 @@
 
         async function fetchDepartures() {
           const proxyUrl = "https://thingproxy.freeboard.io/fetch/";
-          const targetUrl = encodeURIComponent(
-            "https://www.idsjmk.cz/api/departures/busstop-by-name?busStopName=Nemocnice+Milosrdnych+Bratri"
-          );
+          const targetUrl = "https://www.idsjmk.cz/api/departures/busstop-by-name?busStopName=Nemocnice+Milosrdnych+Bratri";
           const cacheBust = `&cacheBust=${Date.now()}`;
           try {
             const response = await fetch(targetUrl);
