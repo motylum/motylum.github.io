@@ -96,7 +96,7 @@
           );
           const cacheBust = `&cacheBust=${Date.now()}`;
           try {
-            const response = await fetch(proxyUrl + targetUrl + cacheBust);
+            const response = await fetch(targetUrl);
             const data = await response.json();
             const parsedData = JSON.parse(data.contents);
             console.log(parsedData);
