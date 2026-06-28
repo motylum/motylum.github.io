@@ -90,11 +90,13 @@
         const fetchDataTime = 60000;
 
         async function fetchDepartures() {
-          const proxyUrl = "https://thingproxy.freeboard.io/fetch/";
-          const targetUrl = "https://www.idsjmk.cz/api/departures/busstop-by-name?busStopName=Nemocnice+Milosrdnych+Bratri";
+          const proxyUrl = "https://api.allorigins.win/get?url=";
+          const targetUrl = encodeURIComponent(
+            "https://www.idsjmk.cz/api/departures/busstop-by-name?busStopName=Nemocnice%20Milosrdn%C3%BDch%20Brat%C5%99%C3%AD"
+          );
           const cacheBust = `&cacheBust=${Date.now()}`;
           try {
-            const response = await fetch(proxyUrl + targetUrl);
+            const response = await fetch(proxyUrl + targetUrl + cacheBust);
             const data = await response.json();
             const parsedData = JSON.parse(data.contents);
             console.log(parsedData);
